@@ -1,0 +1,2 @@
+# ConsoleCheckers
+Checkers in console.
