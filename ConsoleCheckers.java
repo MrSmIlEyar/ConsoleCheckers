@@ -1,9 +1,27 @@
 import java.util.Scanner;
+import java.util.Random;
 
 
 public class ConsoleCheckers {
+	// объявление всех необходимых переменных
+	public static Random rn = new Random(); // генератор рандомных чисел
+	public static Scanner sc = new Scanner(System.in); // сканер для ввода
+	public static int move = 0; // переменная, принимающая ход, введённый игроком
+	public static int start_x = 0; // переменная, хранящая в себе стартовую координату x хода
+	public static int start_y = 0; // переменная, хранящая в себе стартовую координату y хода
+	public static int end_x = 0; // переменная, хранящая в себе конечную координату x хода
+	public static int end_y = 0; // переменная, хранящая в себе конечную координату y хода
+	public static int number_of_move = 1; // переменная, хранящая в себе порядок хода
+	public static boolean game = true; // переменная, показывающая, что игра идёт (true) или не идёт (false)
+	public static int number_of_white = 12; // количество белых шашек
+	public static int number_of_black = 12; // количество чёрных шашек
+
+
+	// главная функция заполняет поле изначальной расстановкой шашек и перенаправляет пользователся по режимам игры
 	public static void main (String [] args) {
-		String [][] field = new String [10][10];
+		String [][] field = new String [10][10]; // создание поля
+
+		// заполнение поля
 		for (int i = 1; i <= 8; i++) {
 			for (int j = 1; j <= 8; j++) {
 				if (i <= 8 && i >= 6) {
@@ -27,22 +45,34 @@ public class ConsoleCheckers {
 				}
 			}
 		}
+
+		// ввод режима игры
+		System.out.print("Enter game mode (1 - with bot, 2 - with person): ");
+		int game_mode = sc.nextInt();
+		System.out.println();
+		while (game_mode != 1 && game_mode != 2) {
+			System.out.print("Enter correct game mode: ");
+			game_mode = sc.nextInt();
+			System.out.println();
+		}
+
+		// перенаправление пользователя по режиму игры
+		switch (game_mode) {
+			case 1:
+				game_with_bot(field);
+			case 2:
+				game_with_person(field);
+		}
+	}
+
+	
+	// функция игры с человеком
+	public static void game_with_person (String [][] field) {
 		print_field(field);
-		boolean game = true;
-		int start_x = 0;
-		int start_y = 0;
-		int end_x = 0;
-		int end_y = 0;
-		int number_of_move = 1;
-		int move = 0;
-		int number_of_black = 8;
-		int number_of_white = 8;
-		String [] for_split_move = new String [5];
-		Scanner sc = new Scanner(System.in);
 		while (game) {
 			if (number_of_move == 1) {
 				System.out.println("--White's move--");
-				System.out.print("Enter move (x1y1x2y2, for examle 1122): ");
+				System.out.print("Enter move (x1y1x2y2, for example 1122): ");
 				move = sc.nextInt();
 				start_x = move / 1000;
 				start_y = 9 - (move / 100 % 10);
@@ -52,9 +82,10 @@ public class ConsoleCheckers {
 					field[end_y][end_x] = "w";
 					field[start_y][start_x] = "";
 				}
-			} else {
+			} 
+			else {
 				System.out.println("--Black's move--");
-				System.out.print("Enter move (x1y1x2y2, for examle 1122): ");
+				System.out.print("Enter move (x1y1x2y2, for example 1122): ");
 				move = sc.nextInt();
 				start_x = move / 1000;
 				start_y = 9 - (move / 100 % 10);
@@ -67,9 +98,18 @@ public class ConsoleCheckers {
 			}
 			print_field(field);
 			number_of_move = Math.abs(number_of_move - 1);
-		} 
+		}
+
 	}
 
+
+	// функция игры с ботом
+	public static void game_with_bot (String [][] field) {
+		System.out.println("Bot in process of development");
+	}
+
+
+	// функция выводит игровое поле
 	public static void print_field (String [][] field) {
 		System.out.println();
 		System.out.println("    -------------------------------");
