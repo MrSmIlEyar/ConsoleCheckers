@@ -11,18 +11,19 @@ public class ConsoleCheckers {
 	public static int start_y = 0; // переменная, хранящая в себе стартовую координату y хода
 	public static int end_x = 0; // переменная, хранящая в себе конечную координату x хода
 	public static int end_y = 0; // переменная, хранящая в себе конечную координату y хода
-	public static int number_of_move = 1; // переменная, хранящая в себе порядок хода
+	public static int number_of_move = 1; // переменная, хранящая в себе порядок хода (1 - белые, 0 - чёрные)
 	public static boolean game = true; // переменная, показывающая, что игра идёт (true) или не идёт (false)
 	public static int number_of_white = 12; // количество белых шашек
 	public static int number_of_black = 12; // количество чёрных шашек
+	public static String[][] field = new String [10][10]; // создание поля
 
 
 	// главная функция заполняет поле изначальной расстановкой шашек и перенаправляет пользователся по режимам игры
 	public static void main(String[] args) {
-		String[][] field = new String[10][10]; // создание поля
-
 		// заполнение поля
 		for (int i = 1; i <= 8; i++) {
+			field[i][0] = "0";
+			field[i][9] = "0";
 			for (int j = 1; j <= 8; j++) {
 				if (i >= 6) {
 					if (i % 2 == 0 && j % 2 != 0) {
@@ -45,6 +46,10 @@ public class ConsoleCheckers {
 				}
 			}
 		}
+		for (int i = 0; i <= 9; i++) {
+			field[0][i] = "0";
+			field[9][i] = "0";
+		}
 
 		// ввод режима игры
 		System.out.print("Enter game mode (1 - with bot, 2 - with person): ");
@@ -58,10 +63,12 @@ public class ConsoleCheckers {
 
 		// перенаправление пользователя по режиму игры
 		switch (game_mode) {
-			case 1:
+			case 1 -> {
 				game_with_bot(field);
-			case 2:
+			}
+			case 2 -> {
 				game_with_person(field);
+			}
 		}
 	}
 
@@ -69,8 +76,10 @@ public class ConsoleCheckers {
 	// функция игры с человеком
 	public static void game_with_person(String[][] field) {
 		while (game) {
+			hide_kills();
+			show_kills(number_of_move, field);
+			print_field(field);
 			if (number_of_move == 1) {
-				print_field(field);
 				System.out.println("--White's move--");
 				System.out.print("Enter move (x1y1x2y2, for example 1122): ");
 				move = sc.nextInt();
@@ -78,12 +87,12 @@ public class ConsoleCheckers {
 				start_y = 9 - (move / 100 % 10);
 				end_x = move / 10 % 10;
 				end_y = 9 - (move % 10);
-				if (field[end_y][end_x] == " ") { // если ходится на пустую клетку, то
+				if (field[end_y][end_x] == " " || field[end_y][end_x].equals("*")) { // если ходится на пустую клетку, то
 					if (check_kill_on_all_board(number_of_move, field)) { // проверка того, что необходимо ли съедать шашку в этом ходу
 						if (check_kill(start_x, start_y, field) & isJump(start_x, start_y, end_x, end_y)) { // проверка того, что этой шашкой что-то съедается и это прыжок
 							Kill(start_x, start_y, end_x, end_y, field); // void функция - уничтожает шашку, перемещает текущую шашку, меняет цвет хода
 						} else {
-							System.out.println("YOU MUST KILL");
+							System.out.println("WRONG MOVE!");
 						}
 					} else if (check(number_of_move, start_x, start_y, end_x, end_y)) { // если не надо съедать, то проверяется правильность хода (для шашки)
 						field[end_y][end_x] = "w";
@@ -97,7 +106,6 @@ public class ConsoleCheckers {
 					System.out.println("WRONG MOVE!");
 				}
 			} else {
-				print_field(field);
 				System.out.println("--Black's move--");
 				System.out.print("Enter move (x1y1x2y2, for example 1122): ");
 				move = sc.nextInt();
@@ -105,7 +113,7 @@ public class ConsoleCheckers {
 				start_y = 9 - (move / 100 % 10);
 				end_x = move / 10 % 10;
 				end_y = 9 - (move % 10);
-				if (field[end_y][end_x] == " ") { // если ходится на пустую клетку, то
+				if (field[end_y][end_x] == " " || field[end_y][end_x].equals("*")) { // если ходится на пустую клетку, то
 					if (check_kill_on_all_board(number_of_move, field)) { // проверка того, что необходимо ли съедать шашку в этом ходу
 						if (check_kill(start_x, start_y, field) & isJump(start_x, start_y, end_x, end_y)) { // проверка того, что этой шашкой что-то съедается и это прыжок
 							Kill(start_x, start_y, end_x, end_y, field); // void функция - уничтожает шашку, перемещает текущую шашку, меняет цвет хода
@@ -124,6 +132,14 @@ public class ConsoleCheckers {
 					System.out.println("WRONG MOVE!");
 				}
 			}
+		if (number_of_black == 0) {
+			System.out.println("----WHITES WIN!!!----");
+			game = false;
+		}
+		if (number_of_white == 0) {
+			System.out.println("----BLACKS WIN!!!----");
+			game = false;
+		}
 		}
 	}
 
@@ -133,6 +149,92 @@ public class ConsoleCheckers {
 		System.out.println("Bot in process of development");
 	}
 
+
+	// функция, показывающая возможные съедения
+	public static void show_kills (int move_number, String[][] field) {
+		for (int i = 1; i <= 8; i++) {
+			for (int j = 1; j <= 8; j++) {
+				if ((move_number == 1 && field[i][j].equals("w")) || (move_number == 0 && field[i][j].equals("b"))) {
+					kill_for_checker(move_number, j, i, field);
+				}
+					
+			}
+		}
+
+	}
+
+	// чищает поле от "*"
+	public static void hide_kills () {
+		for (int i = 1; i <= 8; i++) {
+			for (int j = 1; j <= 8; j++) {
+				if (field[i][j].equals("*")) {
+					field[i][j] = " ";
+				}
+			}
+		}
+	}
+
+	// функция, показывающая "*" для полей, куда возможно съедение
+	public static void kill_for_checker (int move_number, int x, int y, String[][] field) {
+		switch (move_number) {
+			case 1 -> {
+				if (x < 7 && y < 7 && "b".equals(field[y + 1][x + 1])) {
+					
+					if (field[y + 2][x + 2].equals(" ")) {
+						field[y + 2][x + 2] = "*";
+						kill_for_checker(move_number, x + 2, y + 2, field);
+					}
+
+				} 
+				if (y > 2 && x < 7 && "b".equals(field[y - 1][x + 1])) {
+
+					if (field[y - 2][x + 2].equals(" ")) {
+						field[y - 2][x + 2] = "*";
+						kill_for_checker(move_number, x + 2, y - 2, field);
+					}
+				}
+				if (y < 7 && x > 2 && "b".equals(field[y + 1][x - 1])) {
+					if (field[y + 2][x - 2].equals(" ")) {
+						field[y + 2][x - 2] = "*";
+						kill_for_checker(move_number, x - 2, y + 2, field);
+					}
+				}
+				if (y > 2 && x > 2 && "b".equals(field[y - 1][x - 1])) {
+					if (field[y - 2][x - 2].equals(" ")) {
+						field[y - 2][x - 2] = "*";
+						kill_for_checker(move_number, x - 2, y - 2, field);
+					}
+				}
+
+			}
+			case 0 -> {
+				if (x < 7 && y < 7 && field[y + 1][x + 1] == "w") {
+					if (field[y + 2][x + 2].equals(" ")) {
+						field[y + 2][x + 2] = "*";
+						kill_for_checker(move_number, x + 2, y + 2, field);
+					}
+				} 
+				if (y > 2 && x < 7 && field[y - 1][x + 1] == "w") {
+					if (field[y - 2][x + 2].equals(" ")) {
+						field[y - 2][x + 2] = "*";
+						kill_for_checker(move_number, x + 2, y - 2, field);
+					}
+				}
+				if (y < 7 && x > 2 && field[y + 1][x - 1] == "w") {
+					if (field[y + 2][x - 2].equals(" ")) {
+						field[y + 2][x - 2] = "*";
+						kill_for_checker(move_number, x - 2, y + 2, field);
+					}
+				}
+				if (y > 2 && x > 2 && field[y - 1][x - 1] == "w") {
+					if (field[y - 2][x - 2].equals(" ")) {
+						field[y - 2][x - 2] = "*";
+						kill_for_checker(move_number, x - 2, y - 2, field);
+					}
+				}
+			}
+		}
+	}
 
 	// функция выводит игровое поле
 	public static void print_field(String[][] field) {
@@ -211,7 +313,7 @@ public class ConsoleCheckers {
 				}
 			}
 			if (check_pos(x, y)) {
-				if (field[have_y][have_x] != field[starty][startx] & field[y][x] == " " & (field[have_y][have_x] == "w" || field[have_y][have_x] == "b")) {
+				if (field[have_y][have_x] != field[starty][startx] & field[y][x] == "*" & (field[have_y][have_x] == "w" || field[have_y][have_x] == "b")) {
 					return true;
 				}
 			}
@@ -283,7 +385,7 @@ public class ConsoleCheckers {
 				}
 			}
 			if (check_pos(x, y)) {
-				if (x == end_x & y == end_y & field[have_y][have_x] != field[start_y][start_x] & field[y][x] == " " & (field[have_y][have_x] == "w" || field[have_y][have_x] == "b")) {
+				if (x == end_x & y == end_y & field[have_y][have_x] != field[start_y][start_x] & field[y][x] == "*" & (field[have_y][have_x] == "w" || field[have_y][have_x] == "b")) {
 					if (field[have_y][have_x] == "b") {
 						number_of_black -= 1;
 						field[end_y][end_x] = "w";
