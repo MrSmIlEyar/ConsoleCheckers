@@ -25,7 +25,7 @@ public class ConsoleCheckers {
             field[i][0] = "0";
             field[i][9] = "0";
             for (int j = 1; j <= 8; j++) {
-                if (i >= 8) {
+                if (i >= 6) {
                     if (i % 2 == 0 && j % 2 != 0) {
                         field[i][j] = "w";
                     } else if (i % 2 != 0 && j % 2 == 0) {
@@ -33,7 +33,7 @@ public class ConsoleCheckers {
                     } else {
                         field[i][j] = " ";
                     }
-                } else if (i <= 5) {
+                } else if (i <= 3) {
                     if (i % 2 == 0 && j % 2 != 0) {
                         field[i][j] = "b";
                     } else if (i % 2 != 0 && j % 2 == 0) {
@@ -105,6 +105,12 @@ public class ConsoleCheckers {
                 } else {
                     System.out.println("WRONG MOVE!");
                 }
+                if(!check_moves(0, field)) {
+                    print_field(field);
+                    System.out.println("----WHITE WIN!!!----");
+                    game = false;
+                    break;
+                }
             } else {
                 System.out.println("--Black's move--");
                 System.out.print("Enter move (x1y1x2y2, for example 1122): ");
@@ -131,12 +137,18 @@ public class ConsoleCheckers {
                 } else {
                     System.out.println("WRONG MOVE!");
                 }
+                if(!check_moves(1, field)) {
+                    print_field(field);
+                    System.out.println("----BLACK WIN!!!----");
+                    game = false;
+                    break;
+                }
             }
-            if (number_of_black == 0 || !check_moves(0, field)) {
+            if (number_of_black == 0) {
                 System.out.println("----WHITE WIN!!!----");
                 game = false;
             }
-            if (number_of_white == 0 || !check_moves(1, field)) {
+            if (number_of_white == 0) {
                 System.out.println("----BLACK WIN!!!----");
                 game = false;
             }
